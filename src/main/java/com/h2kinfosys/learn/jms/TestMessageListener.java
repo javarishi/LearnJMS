@@ -24,8 +24,10 @@ public class TestMessageListener {
 			// Step 2 = createConnection
 			conn = acf.createConnection();
 			conn.start();
-			//Step 3 - Create Session - Auto Commit
-			Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			//Step 3 - Create Session - 
+			// session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			// final Session session = conn.createSession(true, Session.SESSION_TRANSACTED);
+			Session session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 			//Step 4 - Create Destination
 			Destination queue = session.createQueue("TEST.H2K.Q1");
 			// Step 5 - Create Message Consumer
@@ -35,6 +37,8 @@ public class TestMessageListener {
 				public void onMessage(Message message) {
 					try {
 						System.out.println(((TextMessage) message).getText());
+						// session.commit(); // Session Transacted
+						message.acknowledge();
 					} catch (JMSException e) {
 						e.printStackTrace();
 					}

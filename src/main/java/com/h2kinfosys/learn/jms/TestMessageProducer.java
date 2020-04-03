@@ -15,6 +15,7 @@ public class TestMessageProducer {
 	
 	public static void main(String[] args) throws JMSException {
 		Connection conn = null;
+		Session session = null;
 		try {
 			// Step 1 = Create ConnectionFactory
 			ActiveMQConnectionFactory acf = new ActiveMQConnectionFactory(brokerURL);
@@ -22,7 +23,8 @@ public class TestMessageProducer {
 			conn = acf.createConnection();
 			conn.start();
 			//Step 3 - Create Session - Auto Commit
-			Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			// Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			session = conn.createSession(true, Session.SESSION_TRANSACTED);
 			//Step 4 - Create Destination
 			Destination queue = session.createQueue("TEST.H2K.Q1");
 			// Step 5 - Create Message Producer
@@ -32,11 +34,13 @@ public class TestMessageProducer {
 			// Step 7 - send the message
 			producer.send(message);
 			
-			
+			// Step 8 - Session commit
+			session.commit();
 			System.out.println("Message sent successfully");
 			
 		}catch (JMSException e) {
 			e.printStackTrace();
+			session.rollback();
 		}finally {
 			if(conn != null) conn.close();
 			System.out.println("Connection closed");
